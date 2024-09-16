@@ -13,7 +13,7 @@ from telegram.error import NetworkError
 FAULT_RECORDS_FILE = 'fault_records.json'
 REPAIRED_RECORDS_FILE = 'repaired_records.json'
 RETRY_TIME = 5
-CHAT_ID = "7512844838:AAFQvbE7EtUxmPbVX82ETV0zkOxjilE0hn0"  # Replace with your actual group chat ID
+CHAT_ID = ""  # Replace with your actual group chat ID
 
 # Initialize logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -131,10 +131,24 @@ async def list_faults(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     await update.message.reply_text(response)
 
+async def delete_fault(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    args = context.args
+    if len(args) != 2:
+        await update.message.reply_text("請使用正確的格式: /D 店家 機台編號(雙位數字)")
+        return
+
+    store = args[0]
+    machine_number = args[1]
+
+    if fault_system.remove_fault(store, machine_number):
+        await update.message.reply_text(f"已刪除 {store} 號店, {machine_number} 號機台的故障紀錄。")
+    else:
+        await update.message.reply_text("找不到該故障紀錄。")
+
 # ... [其他函數的實現，如 mark_repair, mark_shipping, list_repaired, delete_fault, help_command] ...
 
 def main():
-    application = Application.builder().token("YOUR_BOT_TOKEN").build()
+    application = Application.builder().token("7512844838:AAFQvbE7EtUxmPbVX82ETV0zkOxjilE0hn0").build()
 
     application.add_handler(CommandHandler("F", record_fault))
     application.add_handler(CommandHandler("L", list_faults))
